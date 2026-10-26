@@ -1,0 +1,290 @@
+[
+  {
+    "id": "DEC-001",
+    "decision": "Responsive web app",
+    "status": "CONFIRMED",
+    "trace": "PRD; Phase 0/7"
+  },
+  {
+    "id": "DEC-002",
+    "decision": "Five core functions 00-04",
+    "status": "CONFIRMED",
+    "trace": "PRD; Phases 1-2"
+  },
+  {
+    "id": "DEC-003",
+    "decision": "Source Analysis is source-only; no external fact-check in this stage",
+    "status": "CONFIRMED",
+    "trace": "Source Analysis; QA-001..010"
+  },
+  {
+    "id": "DEC-004",
+    "decision": "Fixed 10-section Source Analysis report",
+    "status": "CONFIRMED",
+    "trace": "Source Analysis; QA-001..010"
+  },
+  {
+    "id": "DEC-005",
+    "decision": "Evidence statuses: source-supported, unverified, conflicting",
+    "status": "CONFIRMED",
+    "trace": "Source Analysis; QA-002,007"
+  },
+  {
+    "id": "DEC-006",
+    "decision": "Analysis approval required before downstream generation",
+    "status": "CONFIRMED",
+    "trace": "Function specs; QA-011"
+  },
+  {
+    "id": "DEC-007",
+    "decision": "Master Language Hindi or English",
+    "status": "CONFIRMED",
+    "trace": "Function 00/01; QA-035"
+  },
+  {
+    "id": "DEC-008",
+    "decision": "Aspect ratio 9:16 or 16:9",
+    "status": "CONFIRMED",
+    "trace": "Function 00-03"
+  },
+  {
+    "id": "DEC-009",
+    "decision": "Shorts use user-selected number of approximately 8-second segments",
+    "status": "CONFIRMED",
+    "trace": "Function 00/01; QA-014"
+  },
+  {
+    "id": "DEC-010",
+    "decision": "Long video minimum 4 minutes; approximately 8-second segments; final segment may be shorter",
+    "status": "CONFIRMED",
+    "trace": "Function 00/01; QA-015"
+  },
+  {
+    "id": "DEC-011",
+    "decision": "One Flow prompt per script segment",
+    "status": "CONFIRMED",
+    "trace": "Function 02; QA-016"
+  },
+  {
+    "id": "DEC-012",
+    "decision": "Consistent male narrator style described in prompts; exact voice not guaranteed",
+    "status": "CONFIRMED / VALIDATE BEFORE BUILD",
+    "trace": "Function 02; QA-017"
+  },
+  {
+    "id": "DEC-013",
+    "decision": "Two distinct thumbnail prompt options A/B; prompt-only by default",
+    "status": "CONFIRMED",
+    "trace": "Function 03; QA-018"
+  },
+  {
+    "id": "DEC-014",
+    "decision": "SEO titles, recommended title, description, tags, keywords, hashtags",
+    "status": "CONFIRMED",
+    "trace": "Function 04; QA-019"
+  },
+  {
+    "id": "DEC-015",
+    "decision": "No clickable links anywhere in app/research/output/export",
+    "status": "CONFIRMED",
+    "trace": "All; QA-020"
+  },
+  {
+    "id": "DEC-016",
+    "decision": "Research off by default; optional Quick/Deep/Adaptive modes",
+    "status": "CONFIRMED",
+    "trace": "Research; QA-021..024"
+  },
+  {
+    "id": "DEC-017",
+    "decision": "Per-finding research review and explicit integration approval",
+    "status": "CONFIRMED",
+    "trace": "Research; QA-021,022"
+  },
+  {
+    "id": "DEC-018",
+    "decision": "Research integration creates a new analysis version",
+    "status": "CONFIRMED",
+    "trace": "Research; QA-022"
+  },
+  {
+    "id": "DEC-019",
+    "decision": "After research approval suggest next function, do not auto-start",
+    "status": "CONFIRMED",
+    "trace": "Research; QA-022"
+  },
+  {
+    "id": "DEC-020",
+    "decision": "No paid fallback",
+    "status": "CONFIRMED",
+    "trace": "Provider spec; QA-024"
+  },
+  {
+    "id": "DEC-021",
+    "decision": "Unknown-pricing models excluded by default",
+    "status": "CONFIRMED",
+    "trace": "Provider spec; QA-025"
+  },
+  {
+    "id": "DEC-022",
+    "decision": "Maximum eight active projects; ninth-project review/export/confirmation flow",
+    "status": "CONFIRMED",
+    "trace": "Versioning; QA-031"
+  },
+  {
+    "id": "DEC-023",
+    "decision": "Failed archive/export blocks deletion",
+    "status": "CONFIRMED",
+    "trace": "Versioning; QA-032"
+  },
+  {
+    "id": "DEC-024",
+    "decision": "Autosave where supported plus manual export/backup",
+    "status": "CONFIRMED",
+    "trace": "Versioning; QA-028"
+  },
+  {
+    "id": "DEC-025",
+    "decision": "Storage warnings and local drafts where supported",
+    "status": "CONFIRMED / VALIDATE BEFORE BUILD",
+    "trace": "Versioning; Phase 6"
+  },
+  {
+    "id": "DEC-026",
+    "decision": "Master Rules versioned; new projects use latest; existing projects pinned until migration",
+    "status": "CONFIRMED",
+    "trace": "Master Rules; QA-033"
+  },
+  {
+    "id": "DEC-027",
+    "decision": "Rule migration requires preview and confirmation",
+    "status": "CONFIRMED",
+    "trace": "Versioning; QA-033"
+  },
+  {
+    "id": "DEC-028",
+    "decision": "Optional per-output auto-approval; critical failures still block approval",
+    "status": "CONFIRMED",
+    "trace": "PRD; QA-034"
+  },
+  {
+    "id": "DEC-029",
+    "decision": "Desktop sidebar, mobile bottom navigation, adaptive tablet layout",
+    "status": "CONFIRMED",
+    "trace": "UI/UX; QA-035"
+  },
+  {
+    "id": "DEC-030",
+    "decision": "Dashboard shows progress, pending approvals, failed tasks, provider status",
+    "status": "CONFIRMED",
+    "trace": "UI/UX; QA-036"
+  },
+  {
+    "id": "DEC-031",
+    "decision": "Direct and AI-assisted edits for selection/segment/full output",
+    "status": "CONFIRMED",
+    "trace": "UI/UX; Function specs"
+  },
+  {
+    "id": "DEC-032",
+    "decision": "API keys protected and excluded from logs/outputs/exports/history",
+    "status": "CONFIRMED",
+    "trace": "Security; QA-026,030"
+  },
+  {
+    "id": "DEC-033",
+    "decision": "OpenRouter/Groq/Gemini examples only after compatibility/free eligibility verification",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Provider spec; Phase 0"
+  },
+  {
+    "id": "DEC-034",
+    "decision": "Initial benchmark of 20 sources with human answer keys",
+    "status": "PLANNED",
+    "trace": "Quality plan; Phase 1"
+  },
+  {
+    "id": "TECH-001",
+    "decision": "Hosting/backend architecture",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-002",
+    "decision": "Database/retention strategy",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-003",
+    "decision": "Authentication scope/provider",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-004",
+    "decision": "Current free models, quotas, terms, data policies",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-005",
+    "decision": "Maximum source length/file size and supported document types",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-006",
+    "decision": "URL ingestion coverage and failure handling",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-007",
+    "decision": "Google Flow current prompt format, ratios, safety, model/version",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0"
+  },
+  {
+    "id": "TECH-008",
+    "decision": "Export/restore implementation fidelity",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0/6"
+  },
+  {
+    "id": "TECH-009",
+    "decision": "Storage and version retention limits",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 0/6"
+  },
+  {
+    "id": "TECH-010",
+    "decision": "AI-generated content disclosure requirements at release time",
+    "status": "VALIDATE BEFORE BUILD",
+    "trace": "Phase 7"
+  },
+  {
+    "id": "OPEN-001",
+    "decision": "Exact SEO title option count and description template/length",
+    "status": "OPEN / PENDING",
+    "trace": "Configurable implementation default; document selected default"
+  },
+  {
+    "id": "OPEN-002",
+    "decision": "Maximum Shorts segment count and maximum long-video duration",
+    "status": "OPEN / PENDING",
+    "trace": "Capacity test and document limits"
+  },
+  {
+    "id": "OPEN-003",
+    "decision": "Oldest-project ordering: creation date vs last activity",
+    "status": "OPEN / PENDING",
+    "trace": "Show both; document chosen rule before release"
+  },
+  {
+    "id": "OPEN-004",
+    "decision": "Final hosting/database/auth/provider selections",
+    "status": "OPEN / PENDING",
+    "trace": "Resolve in Phase 0"
+  }
+]

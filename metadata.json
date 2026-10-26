@@ -1,0 +1,9 @@
+{
+  "name": "AI Content Creation App",
+  "description": "AI Content Creation Studio for YouTube and Shorts content workflow, grounded in source analysis with explicit review gates.",
+  "request_feedback": false,
+  "permissions": [],
+  "capabilities": [
+    "MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"
+  ]
+}

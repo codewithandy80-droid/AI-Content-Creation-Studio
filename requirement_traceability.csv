@@ -1,0 +1,21 @@
+requirement_id,requirement,acceptance_test,implementation_phase,status
+REQ-001,Preserve source and source versions,AC-F00-06,Phase 1,CONFIRMED
+REQ-002,Fixed 10-section evidence-first source analysis,QA-001..010,Phase 1,CONFIRMED
+REQ-003,Approval gate before downstream generation,QA-011,Phase 1,CONFIRMED
+REQ-004,Script segment schema and duration rules,QA-013..015,Phase 2,CONFIRMED
+REQ-005,One Flow prompt per segment with consistent narrator guidance,QA-016..017,Phase 2,CONFIRMED
+REQ-006,Two distinct thumbnail prompt concepts,QA-018,Phase 2,CONFIRMED
+REQ-007,SEO output schema and factual alignment,QA-019,Phase 2,CONFIRMED
+REQ-008,No clickable links anywhere,QA-020,Phase 2/5/6,CONFIRMED
+REQ-009,Optional research with per-finding review,QA-021..023,Phase 5,CONFIRMED
+REQ-010,No paid fallback / unknown-price model exclusion,QA-024..025,Phase 3,CONFIRMED
+REQ-011,API secret redaction and secret-free export,"QA-026,030",Phase 3/6,CONFIRMED
+REQ-012,Project isolation and session controls,QA-027,Phase 3,VALIDATE BEFORE BUILD
+REQ-013,Autosave state truthfulness,QA-028,Phase 6,CONFIRMED
+REQ-014,Safe restore and conflict handling,QA-029,Phase 6,CONFIRMED
+REQ-015,Eight-project cap and safe deletion,QA-031..032,Phase 4,CONFIRMED
+REQ-016,Master Rules migration confirmation,QA-033,Phase 4,CONFIRMED
+REQ-017,Auto-approval cannot bypass critical gates,QA-034,Phase 2,CONFIRMED
+REQ-018,Responsive bilingual UI,QA-035,Phase 7,CONFIRMED
+REQ-019,Meaningful progress and actionable errors,QA-036,Phase 7,CONFIRMED
+REQ-020,"Verify free-tier, Flow, auth, storage and export feasibility",Phase 0 checklist,Phase 0,VALIDATE BEFORE BUILD
