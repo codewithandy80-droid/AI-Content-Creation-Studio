@@ -26,6 +26,8 @@ import {
   History
 } from 'lucide-react';
 import { generateScriptFromAnalysis } from '../services/scriptEngine';
+import { createDraftSourceAnalysis } from '../services/sourceAnalysisService';
+import { SourceAnalysisModal } from './SourceAnalysisModal';
 import { 
   saveOutput, 
   listOutputsForProject, 
@@ -58,6 +60,8 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
   const [generationError, setGenerationError] = useState<string | null>(null);
   const [editingSegmentIdx, setEditingSegmentIdx] = useState<number | null>(null);
   const [showAnalysisHelper, setShowAnalysisHelper] = useState<boolean>(false);
+  const [activeAnalysisForModal, setActiveAnalysisForModal] = useState<AnalysisVersion | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState<boolean>(false);
 
   const t = {
     en: {
@@ -68,9 +72,11 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
       sourceCheck: 'Source Material Preserved:',
       analysisCheck: 'Approved Source Analysis:',
       readyForScript: 'Preconditions Satisfied — Ready for Script Generation',
-      blockedNotice: 'Script generation is strictly locked until a Source Analysis version is reviewed and approved by you.',
-      initAnalysisBtn: 'Review & Approve Initial Source Analysis',
-      providerBannerTitle: 'AI Provider Integration Status: Unconfigured / Not Approved',
+      blockedNotice: 'Script generation is strictly locked until a 10-section Source Analysis version is reviewed and approved by you.',
+      initAnalysisBtn: 'Create Source Analysis Draft (10 Sections)',
+      reviewAnalysisBtn: 'Review & Edit Analysis Draft (10 Sections)',
+      viewAnalysisBtn: 'View / Revise Approved Analysis (10 Sections)',
+      providerBannerTitle: 'AI Provider Integration Status: Local Engine Active (₹0 Budget)',
       providerBannerDesc: 'External LLM APIs (Gemini, Groq, OpenRouter) are disabled in strict accordance with the ₹0 budget and Plan-Lock Rule. Script generation will execute via the verified local deterministic engine grounded in your approved source.',
       generateButton: 'Generate Source-Grounded Script',
       generating: 'Synthesizing Segments from Approved Analysis...',
@@ -101,8 +107,10 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
       analysisCheck: 'स्वीकृत सोर्स एनालिसिस:',
       readyForScript: 'सभी पूर्व-शर्तें पूरी हैं — स्क्रिप्ट जनरेशन के लिए तैयार',
       blockedNotice: 'जब तक सोर्स एनालिसिस स्वीकृत नहीं होता, स्क्रिप्ट जनरेशन सख्त रूप से लॉक रहेगा।',
-      initAnalysisBtn: 'प्रारंभिक सोर्स एनालिसिस की समीक्षा और स्वीकृति करें',
-      providerBannerTitle: 'एआई प्रोवाइडर स्थिति: असंबद्ध / अस्वीकृत',
+      initAnalysisBtn: '10-खंडीय सोर्स एनालिसिस ड्राफ्ट बनाएं',
+      reviewAnalysisBtn: '10-खंडीय विश्लेषण ड्राफ्ट की समीक्षा एवं संपादन',
+      viewAnalysisBtn: '10-खंडीय स्वीकृत विश्लेषण देखें / संशोधित करें',
+      providerBannerTitle: 'एआई प्रोवाइडर स्थिति: स्थानीय इंजन सक्रिय (₹0 बजट)',
       providerBannerDesc: 'बाहरी एलएलएम एपीआई (Gemini, Groq, OpenRouter) ₹0 बजट प्रतिबंध के तहत बंद हैं। स्वीकृत स्रोत डेटा के आधार पर स्थानीय इंजन द्वारा स्क्रिप्ट तैयार की जाएगी।',
       generateButton: 'सोर्स-आधारित स्क्रिप्ट जनरेट करें',
       generating: 'स्वीकृत विश्लेषण से स्क्रिप्ट सेगमेंट्स तैयार हो रहे हैं...',
@@ -170,63 +178,67 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
     };
   }, [activeProject]);
 
-  // Helper to approve initial source analysis if user hasn't created one
-  const handleApproveInitialAnalysis = async () => {
+  // Open existing analysis or create an honest draft for human review (TASK-10)
+  const handleOpenAnalysisReview = async () => {
     if (!activeProject || sources.length === 0) return;
     onSaveStatusChange('saving');
 
     try {
-      const summaryContent = sources.map((s) => s.content_or_storage_reference).join('\n\n');
-      const initialAnalysis: AnalysisVersion = {
-        analysis_version_id: `analysis-${Date.now()}`,
-        project_id: activeProject.project_id,
-        source_version_ids: sources.map((s) => s.source_id),
-        version_number: 1,
-        analysis_type: 'source_only',
-        report_schema_version: '1.0',
-        sections: {
-          source_summary: summaryContent.slice(0, 300) || 'Verified source summary.',
-          main_story_core_claims: summaryContent.slice(0, 400) || 'Main narrative claims.',
-          key_facts_with_evidence: 'Key verified source data and context.',
-          timeline_chronology: 'Chronological timeline established by source references.',
-          entities_relationships: 'Entities, locations, and documented figures.',
-          numbers_dates_exact_details: 'Documented measurements and exact dates.',
-          uncertainty_conflicts: 'Preserved caveats and source boundaries.',
-          missing_context: 'Documented omissions or unverified assertions.',
-          story_angles: 'Narrative angles grounded in verified source evidence.',
-          source_limitations: 'Limitations of supplied source material.',
-        },
-        claim_records: [
-          {
-            claim_id: `claim-${Date.now()}-1`,
-            analysis_version_id: `analysis-${Date.now()}`,
-            claim_text: summaryContent.slice(0, 120) || 'Primary source claim.',
-            status: 'source-supported',
-            importance: 'high',
-            claim_type: 'fact',
-            evidence_text: summaryContent.slice(0, 100),
-            source_id: sources[0].source_id,
-            source_location: 'Section 1',
-            attribution: sources[0].source_label,
-            caveat: '',
-            review_status: 'accepted',
-          },
-        ],
-        created_at: new Date().toISOString(),
-        review_status: 'draft',
-        approved_at: null,
-        supersedes_analysis_version_id: null,
-      };
+      // If an analysis already exists (approved or draft), open it in modal
+      const existing = approvedAnalysis || (analyses.length > 0 ? analyses[analyses.length - 1] : null);
+      if (existing) {
+        setActiveAnalysisForModal(existing);
+        setIsAnalysisModalOpen(true);
+        onSaveStatusChange('saved');
+        return;
+      }
 
-      await saveAnalysisVersion(initialAnalysis);
-      const approved = await approveAnalysisVersion(initialAnalysis.analysis_version_id);
-      setAnalyses([approved]);
-      setApprovedAnalysis(approved);
+      // If no analysis exists, create an honest draft (strictly DRAFT, unapproved)
+      const newDraft = createDraftSourceAnalysis({
+        project: activeProject,
+        sources,
+        existingVersionsCount: analyses.length,
+      });
+
+      // Save draft to storage (never auto-approved!)
+      const savedDraft = await saveAnalysisVersion(newDraft);
+      setAnalyses((prev) => [...prev, savedDraft]);
+      setActiveAnalysisForModal(savedDraft);
+      setIsAnalysisModalOpen(true);
       onSaveStatusChange('saved');
     } catch (err: any) {
       onSaveStatusChange('failed', err.message);
       setGenerationError(err.message);
     }
+  };
+
+  const handleAnalysisUpdated = (updated: AnalysisVersion) => {
+    setAnalyses((prev) => {
+      const idx = prev.findIndex((a) => a.analysis_version_id === updated.analysis_version_id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = updated;
+        return next;
+      }
+      return [...prev, updated];
+    });
+    if (updated.review_status === 'approved') {
+      setApprovedAnalysis(updated);
+    }
+  };
+
+  const handleAnalysisApproved = (approved: AnalysisVersion) => {
+    setApprovedAnalysis(approved);
+    setAnalyses((prev) => {
+      const idx = prev.findIndex((a) => a.analysis_version_id === approved.analysis_version_id);
+      if (idx >= 0) {
+        const next = [...prev];
+        next[idx] = approved;
+        return next;
+      }
+      return [...prev, approved];
+    });
+    setGenerationError(null);
   };
 
   // Explicit User-Initiated Script Generation (Never automatic!)
@@ -378,20 +390,36 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
           </div>
         </div>
 
-        {!isAnalysisApproved && (
+        {!isAnalysisApproved ? (
           <div className="pt-2 border-t border-amber-900/40 space-y-2">
             <p className="text-amber-300 text-[11px] leading-relaxed">
               {t.blockedNotice}
             </p>
             {hasSources && (
               <button
-                onClick={handleApproveInitialAnalysis}
-                className="px-3 py-1.5 rounded bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors flex items-center gap-1.5"
+                onClick={handleOpenAnalysisReview}
+                className="px-3.5 py-1.5 rounded-lg bg-indigo-600 hover:bg-indigo-500 text-white font-medium text-xs transition-colors flex items-center gap-1.5 cursor-pointer shadow-sm"
               >
-                <CheckCircle2 className="w-3.5 h-3.5" />
-                <span>{t.initAnalysisBtn}</span>
+                <FileText className="w-3.5 h-3.5" />
+                <span>
+                  {analyses.length > 0 ? t.reviewAnalysisBtn : t.initAnalysisBtn}
+                </span>
               </button>
             )}
+          </div>
+        ) : (
+          <div className="pt-2 border-t border-slate-800 flex items-center justify-between">
+            <span className="text-[11px] text-emerald-400 font-mono flex items-center gap-1.5">
+              <CheckCircle2 className="w-3.5 h-3.5" />
+              <span>{t.readyForScript}</span>
+            </span>
+            <button
+              onClick={handleOpenAnalysisReview}
+              className="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 text-slate-300 text-xs border border-slate-700 flex items-center gap-1 transition-colors cursor-pointer"
+            >
+              <FileText className="w-3 h-3 text-indigo-400" />
+              <span>{t.viewAnalysisBtn}</span>
+            </button>
           </div>
         )}
       </div>
@@ -630,6 +658,20 @@ export const Function01ScriptWorkspace: React.FC<Function01ScriptWorkspaceProps>
             ))}
           </div>
         </div>
+      )}
+
+      {/* Source Analysis Review & Approval Modal */}
+      {isAnalysisModalOpen && activeAnalysisForModal && activeProject && (
+        <SourceAnalysisModal
+          isOpen={isAnalysisModalOpen}
+          onClose={() => setIsAnalysisModalOpen(false)}
+          project={activeProject}
+          sources={sources}
+          analysis={activeAnalysisForModal}
+          uiLang={uiLang}
+          onAnalysisUpdated={handleAnalysisUpdated}
+          onAnalysisApproved={handleAnalysisApproved}
+        />
       )}
     </div>
   );

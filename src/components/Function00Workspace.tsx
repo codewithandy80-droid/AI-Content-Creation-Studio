@@ -1,10 +1,11 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { 
   Project, 
   Source, 
   MasterLanguage, 
   AspectRatio, 
-  FormatType 
+  FormatType,
+  AnalysisVersion
 } from '../types';
 import { 
   PlusCircle, 
@@ -19,8 +20,12 @@ import {
   Info,
   Calendar,
   Layers,
-  ArrowRight
+  ArrowRight,
+  Edit3
 } from 'lucide-react';
+import { createDraftSourceAnalysis } from '../services/sourceAnalysisService';
+import { SourceAnalysisModal } from './SourceAnalysisModal';
+import { listAnalysesForProject, saveAnalysisVersion, approveAnalysisVersion } from '../storage';
 
 interface Function00WorkspaceProps {
   activeProject: Project | null;
@@ -31,6 +36,7 @@ interface Function00WorkspaceProps {
   onAddSource: (source: Omit<Source, 'source_id' | 'captured_at'>) => Promise<void>;
   projectLimitError: { blocked: boolean; oldestCandidate?: Project } | null;
   onClearLimitError: () => void;
+  onNavigateToTab?: (tab: 'f00' | 'f01' | 'f02' | 'f03' | 'f04') => void;
 }
 
 export const Function00Workspace: React.FC<Function00WorkspaceProps> = ({
@@ -42,6 +48,7 @@ export const Function00Workspace: React.FC<Function00WorkspaceProps> = ({
   onAddSource,
   projectLimitError,
   onClearLimitError,
+  onNavigateToTab,
 }) => {
   // New Project Form State
   const [isCreatingNew, setIsCreatingNew] = useState<boolean>(!activeProject);
@@ -59,6 +66,72 @@ export const Function00Workspace: React.FC<Function00WorkspaceProps> = ({
   const [provenanceRef, setProvenanceRef] = useState<string>('');
   const [isSubmittingSource, setIsSubmittingSource] = useState<boolean>(false);
   const [sourceError, setSourceError] = useState<string | null>(null);
+
+  // Source Analysis State
+  const [analyses, setAnalyses] = useState<AnalysisVersion[]>([]);
+  const [approvedAnalysis, setApprovedAnalysis] = useState<AnalysisVersion | null>(null);
+  const [activeAnalysisForModal, setActiveAnalysisForModal] = useState<AnalysisVersion | null>(null);
+  const [isAnalysisModalOpen, setIsAnalysisModalOpen] = useState<boolean>(false);
+
+  useEffect(() => {
+    if (!activeProject) {
+      setAnalyses([]);
+      setApprovedAnalysis(null);
+      return;
+    }
+
+    listAnalysesForProject(activeProject.project_id)
+      .then((loaded) => {
+        setAnalyses(loaded);
+        const approved = loaded.find((a) => a.review_status === 'approved') || null;
+        setApprovedAnalysis(approved);
+      })
+      .catch((err) => console.error('[Function00Workspace] Error loading analyses:', err));
+  }, [activeProject]);
+
+  const handleOpenAnalysisReview = () => {
+    if (!activeProject) return;
+
+    if (analyses.length > 0) {
+      const target = analyses[0];
+      setActiveAnalysisForModal(target);
+      setIsAnalysisModalOpen(true);
+      return;
+    }
+
+    if (sources.length === 0) {
+      alert(uiLang === 'hi' ? 'विश्लेषण शुरू करने से पहले स्रोत सामग्री जोड़ें।' : 'Add source material before creating an analysis draft.');
+      return;
+    }
+
+    const draft = createDraftSourceAnalysis({
+      projectId: activeProject.project_id,
+      sources,
+      versionNumber: 1,
+      language: activeProject.master_language,
+    });
+    setActiveAnalysisForModal(draft);
+    setIsAnalysisModalOpen(true);
+  };
+
+  const handleAnalysisUpdated = (updated: AnalysisVersion) => {
+    setAnalyses((prev) => {
+      const idx = prev.findIndex((a) => a.analysis_version_id === updated.analysis_version_id);
+      if (idx >= 0) {
+        const copy = [...prev];
+        copy[idx] = updated;
+        return copy;
+      }
+      return [updated, ...prev];
+    });
+    setActiveAnalysisForModal(updated);
+  };
+
+  const handleAnalysisApproved = (approved: AnalysisVersion) => {
+    setApprovedAnalysis(approved);
+    handleAnalysisUpdated(approved);
+    setIsAnalysisModalOpen(false);
+  };
 
   const t = {
     en: {
@@ -690,15 +763,71 @@ export const Function00Workspace: React.FC<Function00WorkspaceProps> = ({
             <div className="space-y-4">
               {/* Gate Notice Card */}
               <div className="p-4 rounded-xl bg-slate-900 border border-slate-800 space-y-3 text-xs">
-                <div className="flex items-center gap-2 text-amber-400 font-semibold">
-                  <Lock className="w-4 h-4 shrink-0" />
-                  <span>{t.gateTitle}</span>
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2 font-semibold">
+                    {approvedAnalysis ? (
+                      <span className="flex items-center gap-1.5 text-emerald-400">
+                        <CheckCircle2 className="w-4 h-4 shrink-0" />
+                        <span>Source Analysis Gate: Unlocked</span>
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-1.5 text-amber-400">
+                        <Lock className="w-4 h-4 shrink-0" />
+                        <span>Source Analysis Gate: Locked</span>
+                      </span>
+                    )}
+                  </div>
+                  <span className={`text-[10px] px-2 py-0.5 rounded font-mono uppercase font-bold ${
+                    approvedAnalysis 
+                      ? 'bg-emerald-950 text-emerald-400 border border-emerald-800' 
+                      : analyses.length > 0
+                        ? 'bg-amber-950 text-amber-400 border border-amber-800'
+                        : 'bg-slate-800 text-slate-400 border border-slate-700'
+                  }`}>
+                    {approvedAnalysis ? 'Approved' : analyses.length > 0 ? 'Draft Pending' : 'None'}
+                  </span>
                 </div>
+
                 <p className="text-slate-400 leading-relaxed text-[11px]">
-                  {t.gateDesc}
+                  {approvedAnalysis
+                    ? 'A 10-section Source Analysis version has been explicitly reviewed and approved by you. Downstream functions are unlocked.'
+                    : 'Downstream functions (01 Script, 02 Flow Prompts, 03 Thumbnails, 04 SEO) are strictly locked until a 10-section Source Analysis is reviewed and approved by you.'}
                 </p>
-                <div className="p-2.5 rounded bg-amber-950/40 border border-amber-900/60 text-amber-300 text-[11px] font-mono">
-                  {t.gateStatus}
+
+                {/* Analysis Action Buttons */}
+                <div className="pt-2 space-y-2">
+                  <button
+                    type="button"
+                    onClick={handleOpenAnalysisReview}
+                    disabled={sources.length === 0}
+                    className={`w-full py-2 px-3 rounded-lg text-xs font-semibold flex items-center justify-center gap-2 transition-all ${
+                      sources.length === 0
+                        ? 'bg-slate-800 text-slate-500 cursor-not-allowed'
+                        : approvedAnalysis
+                          ? 'bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700'
+                          : 'bg-indigo-600 hover:bg-indigo-500 text-white shadow-lg shadow-indigo-600/20'
+                    }`}
+                  >
+                    <Edit3 className="w-3.5 h-3.5" />
+                    <span>
+                      {approvedAnalysis
+                        ? 'View / Revise Approved Analysis (10 Sections)'
+                        : analyses.length > 0
+                          ? 'Review & Edit Analysis Draft (10 Sections)'
+                          : 'Create 10-Section Analysis Draft'}
+                    </span>
+                  </button>
+
+                  {approvedAnalysis && onNavigateToTab && (
+                    <button
+                      type="button"
+                      onClick={() => onNavigateToTab('f01')}
+                      className="w-full py-2 px-3 rounded-lg text-xs font-semibold bg-emerald-600 hover:bg-emerald-500 text-white flex items-center justify-center gap-2 shadow-lg shadow-emerald-600/20 transition-all"
+                    >
+                      <span>Proceed to Script Generation</span>
+                      <ArrowRight className="w-3.5 h-3.5" />
+                    </button>
+                  )}
                 </div>
               </div>
 
@@ -741,6 +870,20 @@ export const Function00Workspace: React.FC<Function00WorkspaceProps> = ({
             </div>
           </div>
         </div>
+      )}
+
+      {/* Source Analysis Review & Approval Modal */}
+      {isAnalysisModalOpen && activeAnalysisForModal && activeProject && (
+        <SourceAnalysisModal
+          isOpen={isAnalysisModalOpen}
+          onClose={() => setIsAnalysisModalOpen(false)}
+          project={activeProject}
+          sources={sources}
+          analysis={activeAnalysisForModal}
+          uiLang={uiLang}
+          onAnalysisUpdated={handleAnalysisUpdated}
+          onAnalysisApproved={handleAnalysisApproved}
+        />
       )}
     </div>
   );

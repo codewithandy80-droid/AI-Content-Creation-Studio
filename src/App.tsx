@@ -164,6 +164,7 @@ export default function App() {
             onAddSource={handleAddSource}
             projectLimitError={projectLimitError}
             onClearLimitError={() => setProjectLimitError(null)}
+            onNavigateToTab={setActiveTab}
           />
         )}
         {activeTab === 'f01' && (
